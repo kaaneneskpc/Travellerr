@@ -1,4 +1,4 @@
-package com.kaaneneskpc.presentation.listings
+package com.kaaneneskpc.presentation.feature.listings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

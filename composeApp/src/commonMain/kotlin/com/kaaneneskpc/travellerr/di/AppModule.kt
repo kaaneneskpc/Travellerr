@@ -6,5 +6,7 @@ import com.kaaneneskpc.presentation.di.presentationModule
 
 
 val appModule = listOf(
-    presentationModule, domainModule, dataModule
+    platformModule(), presentationModule, domainModule, dataModule
 )
+
+expect fun platformModule(): org.koin.core.module.Module

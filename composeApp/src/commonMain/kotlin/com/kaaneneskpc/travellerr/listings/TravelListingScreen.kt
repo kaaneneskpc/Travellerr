@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kaaneneskpc.domain.model.TravelListing
-import com.kaaneneskpc.presentation.listings.TravelListingViewModel
+import com.kaaneneskpc.presentation.feature.listings.TravelListingViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable

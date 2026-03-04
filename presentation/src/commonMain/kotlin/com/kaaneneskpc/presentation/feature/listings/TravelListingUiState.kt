@@ -1,4 +1,4 @@
-package com.kaaneneskpc.presentation.listings
+package com.kaaneneskpc.presentation.feature.listings
 
 import com.kaaneneskpc.domain.model.TravelListing
 
