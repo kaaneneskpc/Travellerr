@@ -35,6 +35,9 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
         }
         commonMain.dependencies {
+            implementation(project(":domain"))
+            implementation(project(":data"))
+            implementation(project(":presentation"))
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
