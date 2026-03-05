@@ -1,6 +1,5 @@
 package com.kaaneneskpc.data.di
 
-import com.kaaneneskpc.data.dataSource.DummyDataSource
 import com.kaaneneskpc.data.dataSource.RemoteDataSource
 import com.kaaneneskpc.data.repository.ListingRepositoryImpl
 import com.kaaneneskpc.data.repository.UserRepositoryImp
@@ -21,8 +20,6 @@ import kotlinx.serialization.json.Json
 import org.koin.dsl.module
 
 val dataModule = module {
-    single { DummyDataSource() }
-
     single<HttpClient> {
         HttpClient {
             install(ContentNegotiation) {
@@ -46,7 +43,7 @@ val dataModule = module {
 
     single<ListingRepository> {
         ListingRepositoryImpl(
-            get<DummyDataSource>()
+            get<RemoteDataSource>()
         )
     }
 

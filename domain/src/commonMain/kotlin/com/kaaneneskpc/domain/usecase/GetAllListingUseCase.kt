@@ -5,14 +5,14 @@ import com.kaaneneskpc.domain.repository.ListingRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
+
 class GetAllListingUseCase(private val repository: ListingRepository) {
-    fun execute(): Flow<List<TravelListing>> {
+    suspend fun execute(): List<TravelListing> {
         val data = repository.getAllListings()
-        data.map {
-            it.sortedByDescending { listing ->
-                listing.rating
-            }
+        if (data.isSuccess) {
+            return data.getOrNull()!!
+        } else {
+            return emptyList()
         }
-        return data
     }
 }

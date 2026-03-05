@@ -22,7 +22,7 @@ class TravelListingViewModel(val getAllListingUseCase: GetAllListingUseCase) : V
             _uiState.value =
                 _uiState.value.copy(isLoading = true, errorMessage = null, listings = emptyList())
             try {
-                getAllListingUseCase.execute().collect { listings ->
+                getAllListingUseCase.execute().let { listings ->
                     _uiState.value = _uiState.value.copy(
                         listings = listings,
                         isLoading = false,
