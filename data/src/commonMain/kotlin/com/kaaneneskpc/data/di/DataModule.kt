@@ -1,8 +1,13 @@
 package com.kaaneneskpc.data.di
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import com.kaaneneskpc.data.dataSource.CacheDataSource
 import com.kaaneneskpc.data.dataSource.RemoteDataSource
+import com.kaaneneskpc.data.repository.CacheRepositoryImpl
 import com.kaaneneskpc.data.repository.ListingRepositoryImpl
 import com.kaaneneskpc.data.repository.UserRepositoryImp
+import com.kaaneneskpc.domain.repository.CacheRepository
 import com.kaaneneskpc.domain.repository.ListingRepository
 import com.kaaneneskpc.domain.repository.UserRepository
 import io.ktor.client.HttpClient
@@ -40,6 +45,7 @@ val dataModule = module {
     }
 
     single { RemoteDataSource(httpClient = get<HttpClient>(), get()) }
+    single { CacheDataSource(dataStore = get<DataStore<Preferences>>()) }
 
     single<ListingRepository> {
         ListingRepositoryImpl(
@@ -49,7 +55,11 @@ val dataModule = module {
 
     single<UserRepository> {
         UserRepositoryImp(
-            get<RemoteDataSource>()
+            dataSource = get<RemoteDataSource>(),
+            cacheRepository = get<CacheRepository>()
         )
+    }
+    single<CacheRepository> {
+        CacheRepositoryImpl(get())
     }
 }

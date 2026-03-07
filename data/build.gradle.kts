@@ -40,6 +40,8 @@ kotlin {
                 implementation(libs.ktor.serialization.kotlinx.json)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.kotlinx.serialization.json)
+                implementation(libs.androidx.datastore)
+                implementation(libs.androidx.datastore.preferences)
             }
         }
     }

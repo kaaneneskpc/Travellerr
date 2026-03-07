@@ -17,7 +17,7 @@ import kotlinx.serialization.modules.polymorphic
 
 
 @Composable
-fun TravellerrNavRoot() {
+fun TravellerrNavRoot(userToken: String?) {
 
     val backStack = rememberNavBackStack(
         configuration = SavedStateConfiguration {
@@ -29,7 +29,7 @@ fun TravellerrNavRoot() {
                 }
             }
         },
-        NavRoutes.Login
+        if(userToken!=null) NavRoutes.Listing else NavRoutes.Login
     )
 
     NavDisplay(
