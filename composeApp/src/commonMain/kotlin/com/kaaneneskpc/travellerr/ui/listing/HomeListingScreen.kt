@@ -2,6 +2,7 @@ package com.kaaneneskpc.travellerr.ui.listing
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.kaaneneskpc.domain.model.TravelListing
 import com.kaaneneskpc.presentation.feature.listings.TravelListingViewModel
+import com.kaaneneskpc.travellerr.navigation.NavRoutes
 import com.kaaneneskpc.travellerr.theme.Orange
 import com.kaaneneskpc.travellerr.widgets.MultiHighlightedText
 import com.kaaneneskpc.travellerr.widgets.TextHighlight
@@ -42,10 +44,12 @@ import travellerr.composeapp.generated.resources.Res
 import travellerr.composeapp.generated.resources.dummy
 import travellerr.composeapp.generated.resources.notifications
 import travellerr.composeapp.generated.resources.user
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 
 
 @Composable
-fun HomeListingScreen(viewModel: TravelListingViewModel = koinViewModel()) {
+fun HomeListingScreen(backStack: NavBackStack<NavKey>, viewModel: TravelListingViewModel = koinViewModel()) {
 
     val uiState = viewModel.state.collectAsState()
     Scaffold {
@@ -54,7 +58,7 @@ fun HomeListingScreen(viewModel: TravelListingViewModel = koinViewModel()) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.clip(RoundedCornerShape(32.dp)).background(
-                        color = androidx.compose.ui.graphics.Color.LightGray.copy(alpha = 0.2f)
+                        color = Color.LightGray.copy(alpha = 0.2f)
                     ).padding(4.dp)
                 ) {
                     Image(painter = painterResource(Res.drawable.user), contentDescription = null)
@@ -66,7 +70,7 @@ fun HomeListingScreen(viewModel: TravelListingViewModel = koinViewModel()) {
                     painter = painterResource(Res.drawable.notifications),
                     contentDescription = null,
                     modifier = Modifier.size(48.dp).clip(CircleShape).background(
-                        color = androidx.compose.ui.graphics.Color.LightGray.copy(alpha = 0.2f)
+                        color = Color.LightGray.copy(alpha = 0.2f)
                     ).padding(12.dp),
                 )
             }
@@ -118,7 +122,9 @@ fun HomeListingScreen(viewModel: TravelListingViewModel = koinViewModel()) {
             uiState.value.listings.takeIf { it.isNotEmpty() }?.let {
                 LazyRow {
                     items(it.size) { index ->
-                        DestinationCard(model = it[index])
+                        DestinationCard(model = it[index]) {
+                            backStack.add(NavRoutes.ListingDetails(id = it.id))
+                        }
                     }
                 }
             }
@@ -128,12 +134,15 @@ fun HomeListingScreen(viewModel: TravelListingViewModel = koinViewModel()) {
 
 
 @Composable
-fun DestinationCard(model: TravelListing) {
+fun DestinationCard(model: TravelListing, onItemClick: (TravelListing) -> Unit) {
     Column(
         modifier = Modifier
             .padding(start = 8.dp, end = 8.dp)
             .width(250.dp)
             .background(Color.LightGray.copy(alpha = 0.1f), shape = RoundedCornerShape(16.dp))
+            .clickable {
+                onItemClick(model)
+            }
             .padding(vertical = 16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -179,5 +188,5 @@ fun DestinationCard(model: TravelListing) {
 @Composable
 @Preview(showBackground = true)
 fun HomeListingScreenPreview() {
-    HomeListingScreen()
+    //HomeListingScreen()
 }

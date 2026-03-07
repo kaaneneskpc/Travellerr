@@ -6,13 +6,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -23,6 +23,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,14 +37,19 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
 import com.kaaneneskpc.presentation.feature.register.RegisterViewModel
+import com.kaaneneskpc.presentation.feature.signIn.AuthNavigation
+import com.kaaneneskpc.travellerr.navigation.NavRoutes
 import com.kaaneneskpc.travellerr.widgets.TravellerrCircleVectorButton
 import com.kaaneneskpc.travellerr.widgets.TravellerrSpacer
 import com.kaaneneskpc.travellerr.widgets.TravellerrTextField
+import kotlinx.coroutines.flow.collectLatest
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun SignUpScreen(viewModel: RegisterViewModel = koinViewModel()) {
+fun SignUpScreen(backStack: NavBackStack<NavKey>, viewModel: RegisterViewModel = koinViewModel()) {
 
     val uiState = viewModel.uiState.collectAsState()
     val name = viewModel.name.collectAsState()
@@ -51,11 +57,25 @@ fun SignUpScreen(viewModel: RegisterViewModel = koinViewModel()) {
     val password = viewModel.password.collectAsState()
     val confirmPassword = viewModel.confirmPassword.collectAsState()
 
+    LaunchedEffect(true){
+        viewModel.navigationState.collectLatest {
+            when(it ){
+                is AuthNavigation.ToListing -> {
+                    backStack.add(NavRoutes.Listing)
+                }
+                is AuthNavigation.ToLogin -> {
+                    backStack.remove(NavRoutes.SignUp)
+                }
+                else ->  {}
+            }
+        }
+    }
+
     Scaffold {
         var passwordVisibility by remember { mutableStateOf(false) }
         Column(modifier = Modifier.fillMaxSize().padding(it)) {
             TravellerrCircleVectorButton(
-                imageVector = Icons.Default.ArrowBack,
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Back Arrow",
                 modifier = Modifier,
                 onClick = {}
@@ -186,7 +206,7 @@ fun SignUpScreen(viewModel: RegisterViewModel = koinViewModel()) {
                     "Already have an account?",
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
-                TextButton(onClick = {}) {
+                TextButton(onClick = { viewModel.navigateToLogin() }) {
                     Text("Sign In", color = MaterialTheme.colorScheme.primary)
                 }
             }
@@ -198,5 +218,5 @@ fun SignUpScreen(viewModel: RegisterViewModel = koinViewModel()) {
 @Composable
 @Preview(showBackground = true)
 fun SignUpScreenPreview() {
-    SignUpScreen()
+    //SignUpScreen()
 }
