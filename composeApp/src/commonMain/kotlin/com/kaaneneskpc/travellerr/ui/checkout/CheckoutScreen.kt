@@ -73,19 +73,14 @@ fun CheckoutScreen(
                 when (resultStatus) {
                     is PaymentResult.Success -> {
                         // Handle successful payment, e.g., navigate to confirmation screen
-                        println("TrevenorPayments: Payment successful!")
                     }
-
                     is PaymentResult.Failure -> {
-                        // Handle payment failure, e.g., show error message
-                        println("TrevenorPayments: Payment failed ${resultStatus.errorMessage}")
+                        viewModel.resetPaymentState()
                     }
-
                     is PaymentResult.Cancelled -> {
-                        println("TrevenorPayments: Payment cancelled by user.")
+                        viewModel.resetPaymentState()
                     }
                 }
-
             }
         }
 
@@ -133,6 +128,7 @@ fun CheckoutScreen(
                     isCheckingAvailability = uiState.value.isCheckingAvailability,
                     availability = uiState.value.bookingAvailability,
                     availabilityErrorMessage = uiState.value.availabilityErrorMessage,
+                    hasDateConflict = uiState.value.hasDateConflict,
                     onGuestAdded = { viewModel.addGuest() },
                     onGuestRemoved = { viewModel.removeGuest() },
                     proceedToPayment = { viewModel.createBooking() }
@@ -151,6 +147,7 @@ fun CheckoutContent(
     isCheckingAvailability: Boolean = false,
     availability: BookingAvailability? = null,
     availabilityErrorMessage: String? = null,
+    hasDateConflict: Boolean = false,
     onGuestAdded: () -> Unit,
     onGuestRemoved: () -> Unit,
     proceedToPayment: () -> Unit
@@ -189,7 +186,11 @@ fun CheckoutContent(
                 Text(
                     text = message,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.error,
+                    color = if (hasDateConflict) {
+                        MaterialTheme.colorScheme.tertiary
+                    } else {
+                        MaterialTheme.colorScheme.error
+                    },
                     modifier = Modifier.padding(16.dp)
                 )
             }
@@ -200,12 +201,11 @@ fun CheckoutContent(
                 BookingAvailabilitySection(bookingAvailability = it)
             }
         }
-        availability?.let {
+        if (availability != null && !hasDateConflict) {
             Button(onClick = proceedToPayment, modifier = Modifier.padding(16.dp).fillMaxWidth()) {
                 Text("Proceed to Payment", modifier = Modifier.padding(8.dp))
             }
         }
-
     }
 }
 

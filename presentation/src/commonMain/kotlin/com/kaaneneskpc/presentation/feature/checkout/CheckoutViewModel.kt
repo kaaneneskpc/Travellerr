@@ -44,20 +44,36 @@ class CheckoutViewModel(
     }
 
     fun selectTripDate(tripDateId: String) {
-        _uiState.value = uiState.value.copy(selectedTripDateId = tripDateId)
+        val currentBooking = _uiState.value.booking
+        _uiState.value = uiState.value.copy(
+            selectedTripDateId = tripDateId,
+            booking = if (currentBooking?.tripDateId == tripDateId) currentBooking else null,
+            paymentIntent = null,
+            hasDateConflict = false,
+            bookingAvailability = null,
+            availabilityErrorMessage = null
+        )
         checkAvailability()
     }
 
     fun addGuest() {
         if (_uiState.value.numberOfGuests < 10) {
-            _uiState.value = uiState.value.copy(numberOfGuests = uiState.value.numberOfGuests + 1)
+            _uiState.value = uiState.value.copy(
+                numberOfGuests = uiState.value.numberOfGuests + 1,
+                booking = null,
+                paymentIntent = null
+            )
         }
         checkAvailability()
     }
 
     fun removeGuest() {
         if (_uiState.value.numberOfGuests > 1) {
-            _uiState.value = uiState.value.copy(numberOfGuests = uiState.value.numberOfGuests - 1)
+            _uiState.value = uiState.value.copy(
+                numberOfGuests = uiState.value.numberOfGuests - 1,
+                booking = null,
+                paymentIntent = null
+            )
         }
         checkAvailability()
     }
@@ -71,7 +87,8 @@ class CheckoutViewModel(
         if (listing == null || tripDateId == null) {
             _uiState.value = uiState.value.copy(
                 availabilityErrorMessage = "Please select a trip date",
-                bookingAvailability = null
+                bookingAvailability = null,
+                hasDateConflict = false
             )
             return
         }
@@ -80,22 +97,18 @@ class CheckoutViewModel(
         if (selectedTripDate == null) {
             _uiState.value = uiState.value.copy(
                 availabilityErrorMessage = "Selected trip date not found",
-                bookingAvailability = null
+                bookingAvailability = null,
+                hasDateConflict = false
             )
             return
         }
 
         viewModelScope.launch {
-            println("DEBUG_VM: ===== checkAvailability START =====")
-            println("DEBUG_VM: listingId=${listing.id}")
-            println("DEBUG_VM: tripDateId=$tripDateId")
-            println("DEBUG_VM: checkInDate=${selectedTripDate.startDate}")
-            println("DEBUG_VM: checkOutDate=${selectedTripDate.endDate}")
-            println("DEBUG_VM: numberOfGuests=$numberOfGuests")
             _uiState.value = uiState.value.copy(
                 isCheckingAvailability = true,
                 availabilityErrorMessage = null,
-                bookingAvailability = null
+                bookingAvailability = null,
+                hasDateConflict = false
             )
             try {
                 val result = checkAvailabilityUseCase.execute(
@@ -106,39 +119,68 @@ class CheckoutViewModel(
                     noOfPeople = numberOfGuests
                 )
                 if (result.isFailure) {
-                    val exception = result.exceptionOrNull()
-                    val errorMsg = exception?.message ?: "Unknown error"
-                    println("DEBUG_VM: RESULT FAILURE: $errorMsg")
-                    println("DEBUG_VM: Exception class: ${exception?.let { it::class.simpleName }}")
+                    val errorMsg = result.exceptionOrNull()?.message ?: "Unknown error"
+                    val isConflict = isDateConflictError(errorMsg)
                     _uiState.value = uiState.value.copy(
                         isCheckingAvailability = false,
-                        availabilityErrorMessage = "Failed: $errorMsg",
-                        bookingAvailability = null
+                        availabilityErrorMessage = if (isConflict) {
+                            "You have a pending booking for these dates."
+                        } else {
+                            "Failed: $errorMsg"
+                        },
+                        bookingAvailability = null,
+                        hasDateConflict = isConflict
                     )
                 } else {
-                    println("DEBUG_VM: RESULT SUCCESS: ${result.getOrNull()}")
+                    val availability = result.getOrNull()
+                    val isConflict = availability?.available == false &&
+                            isDateConflictError(availability.reason.orEmpty())
                     _uiState.value = uiState.value.copy(
                         isCheckingAvailability = false,
-                        availabilityErrorMessage = null,
-                        bookingAvailability = result.getOrNull()
+                        availabilityErrorMessage = when {
+                            isConflict -> "You have a pending booking for these dates."
+                            availability?.available == false -> availability.reason
+                            else -> null
+                        },
+                        bookingAvailability = if (availability?.available == true) availability else null,
+                        hasDateConflict = isConflict
                     )
                 }
             } catch (ex: Exception) {
-                println("DEBUG_VM: UNCAUGHT EXCEPTION: ${ex::class.simpleName}: ${ex.message}")
-                ex.printStackTrace()
+                val errorMsg = ex.message ?: "Unknown error"
+                val isConflict = isDateConflictError(errorMsg)
                 _uiState.value = uiState.value.copy(
                     isCheckingAvailability = false,
-                    availabilityErrorMessage = "Exception: ${ex.message}",
-                    bookingAvailability = null
+                    availabilityErrorMessage = if (isConflict) {
+                        "You have a pending booking for these dates."
+                    } else {
+                        "Exception: $errorMsg"
+                    },
+                    bookingAvailability = null,
+                    hasDateConflict = isConflict
                 )
             }
-            println("DEBUG_VM: ===== checkAvailability END =====")
         }
     }
 
+    private fun isDateConflictError(message: String): Boolean {
+        val lowerMessage = message.lowercase()
+        return lowerMessage.contains("conflict") ||
+                lowerMessage.contains("already booked") ||
+                lowerMessage.contains("already exists") ||
+                lowerMessage.contains("409")
+    }
+
     fun createBooking() {
-        val listing = uiState.value.listing
+        val existingBooking = uiState.value.booking
         val tripDateId = uiState.value.selectedTripDateId
+
+        if (existingBooking != null && existingBooking.tripDateId == tripDateId) {
+            createPaymentIntentForBooking(existingBooking)
+            return
+        }
+
+        val listing = uiState.value.listing
         val numberOfGuests = uiState.value.numberOfGuests
 
         if (listing == null || tripDateId == null) {
@@ -180,28 +222,41 @@ class CheckoutViewModel(
                     paymentIntent = null
                 )
             } else {
-                booking.let {
-                    val paymentIntent = createPaymentIntentUseCase.execute(
-                        bookingID = it.id,
-                        amount = it.totalPrice,
-                        currency =it.currency
-                    )
-                    if (paymentIntent == null) {
-                        _uiState.value = uiState.value.copy(
-                            creatingBooking = false,
-                            availabilityErrorMessage = "Failed to create payment intent",
-                            paymentIntent = null
-                        )
-                    } else {
-                        _uiState.value = uiState.value.copy(
-                            creatingBooking = false,
-                            availabilityErrorMessage = null,
-                            paymentIntent = paymentIntent
-                        )
-                    }
-                }
+                _uiState.value = uiState.value.copy(booking = booking)
+                createPaymentIntentForBooking(booking)
             }
         }
     }
 
+    private fun createPaymentIntentForBooking(booking: com.kaaneneskpc.domain.model.Booking) {
+        viewModelScope.launch {
+            _uiState.value = uiState.value.copy(
+                creatingBooking = true,
+                availabilityErrorMessage = null,
+                paymentIntent = null
+            )
+            val paymentIntent = createPaymentIntentUseCase.execute(
+                bookingID = booking.id,
+                amount = booking.totalPrice,
+                currency = booking.currency
+            )
+            if (paymentIntent == null) {
+                _uiState.value = uiState.value.copy(
+                    creatingBooking = false,
+                    availabilityErrorMessage = "Failed to create payment intent",
+                    paymentIntent = null
+                )
+            } else {
+                _uiState.value = uiState.value.copy(
+                    creatingBooking = false,
+                    availabilityErrorMessage = null,
+                    paymentIntent = paymentIntent
+                )
+            }
+        }
+    }
+
+    fun resetPaymentState() {
+        _uiState.value = uiState.value.copy(paymentIntent = null)
+    }
 }

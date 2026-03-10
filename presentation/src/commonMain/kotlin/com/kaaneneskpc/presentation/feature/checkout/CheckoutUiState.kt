@@ -1,5 +1,6 @@
 package com.kaaneneskpc.presentation.feature.checkout
 
+import com.kaaneneskpc.domain.model.Booking
 import com.kaaneneskpc.domain.model.BookingAvailability
 import com.kaaneneskpc.domain.model.PaymentIntent
 import com.kaaneneskpc.domain.model.TravelListing
@@ -15,4 +16,6 @@ data class CheckoutUiState(
     val bookingAvailability: BookingAvailability? = null,
     val creatingBooking: Boolean = false,
     val paymentIntent: PaymentIntent? = null,
+    val booking: Booking? = null,
+    val hasDateConflict: Boolean = false,
 )
