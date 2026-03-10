@@ -24,5 +24,6 @@ data class TravelListingDto(
     val reviewCount: Int,
     val isActive: Boolean,
     val createdAt: String,
-    val updatedAt: String
+    val updatedAt: String,
+    val tripDates: List<TripDateDto>?
 )

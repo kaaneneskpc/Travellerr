@@ -4,12 +4,6 @@ import com.kaaneneskpc.data.dataSource.RemoteDataSource
 import com.kaaneneskpc.data.mappers.TravelListingMapper
 import com.kaaneneskpc.domain.model.TravelListing
 import com.kaaneneskpc.domain.repository.ListingRepository
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 
 class ListingRepositoryImpl(val dataSource: RemoteDataSource) : ListingRepository {
 
@@ -21,6 +15,17 @@ class ListingRepositoryImpl(val dataSource: RemoteDataSource) : ListingRepositor
             return Result.success(models)
         } else {
             throw dtos.exceptionOrNull()!!
+        }
+    }
+
+    override suspend fun getListingById(id: String): Result<TravelListing?> {
+        val dtoResult = dataSource.getListingByID(id)
+        if (dtoResult.isSuccess) {
+            val dto = dtoResult.getOrNull()
+            val model = dto?.let { TravelListingMapper.toDomain(it) }
+            return Result.success(model)
+        } else {
+            throw dtoResult.exceptionOrNull()!!
         }
     }
 }

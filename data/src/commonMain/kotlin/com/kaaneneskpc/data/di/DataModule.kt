@@ -4,11 +4,15 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.kaaneneskpc.data.dataSource.CacheDataSource
 import com.kaaneneskpc.data.dataSource.RemoteDataSource
+import com.kaaneneskpc.data.repository.BookingRepositoryImpl
 import com.kaaneneskpc.data.repository.CacheRepositoryImpl
 import com.kaaneneskpc.data.repository.ListingRepositoryImpl
+import com.kaaneneskpc.data.repository.PaymentRepositoryImpl
 import com.kaaneneskpc.data.repository.UserRepositoryImp
+import com.kaaneneskpc.domain.repository.BookingRepository
 import com.kaaneneskpc.domain.repository.CacheRepository
 import com.kaaneneskpc.domain.repository.ListingRepository
+import com.kaaneneskpc.domain.repository.PaymentRepository
 import com.kaaneneskpc.domain.repository.UserRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
@@ -44,7 +48,7 @@ val dataModule = module {
         }
     }
 
-    single { RemoteDataSource(httpClient = get<HttpClient>(), get()) }
+    single { RemoteDataSource(httpClient = get<HttpClient>(), get(), get()) }
     single { CacheDataSource(dataStore = get<DataStore<Preferences>>()) }
 
     single<ListingRepository> {
@@ -62,4 +66,7 @@ val dataModule = module {
     single<CacheRepository> {
         CacheRepositoryImpl(get())
     }
+
+    single<BookingRepository> { BookingRepositoryImpl(get()) }
+    single<PaymentRepository> { PaymentRepositoryImpl(get()) }
 }
