@@ -5,7 +5,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.tooling.preview.Preview
 import com.kaaneneskpc.presentation.feature.app.AppViewModel
-import com.kaaneneskpc.travellerr.ui.details.TravellerrNavRoot
+import com.kaaneneskpc.travellerr.navigation.TravellerrNavRoot
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable

@@ -1,4 +1,4 @@
-package com.kaaneneskpc.travellerr.ui.details
+package com.kaaneneskpc.travellerr.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -8,7 +8,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
-import com.kaaneneskpc.travellerr.navigation.NavRoutes
+import com.kaaneneskpc.travellerr.ui.details.TravelDetailScreen
 import com.kaaneneskpc.travellerr.ui.listing.HomeListingScreen
 import com.kaaneneskpc.travellerr.ui.signIn.LoginScreen
 import com.kaaneneskpc.travellerr.ui.signUp.SignUpScreen

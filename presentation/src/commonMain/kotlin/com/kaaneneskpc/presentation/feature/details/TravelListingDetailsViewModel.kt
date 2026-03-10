@@ -1,12 +1,15 @@
 package com.kaaneneskpc.presentation.feature.details
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.kaaneneskpc.domain.usecase.GetAllListingUseCase
+import com.kaaneneskpc.domain.usecase.GetListingByIdUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class TravelListingDetailsViewModel(
-    val getAllListingUseCase: GetAllListingUseCase,
+    val getListingDetailsUseCase: GetListingByIdUseCase,
     val itemID: String
 ) : ViewModel() {
 
@@ -14,7 +17,23 @@ class TravelListingDetailsViewModel(
     val state = _uiState.asStateFlow()
 
     init {
-        println("TravelListingDetailsViewModel: Item ID in Details ViewModel: $itemID")
+        getListingDetails()
+    }
+
+    private fun getListingDetails() {
+        viewModelScope.launch {
+            _uiState.value = state.value.copy(isLoading = true)
+            val item = getListingDetailsUseCase.execute(itemID)
+            if (item == null) {
+                _uiState.value =
+                    state.value.copy(isLoading = false, errorMessage = "Error loading details")
+            } else {
+                _uiState.value = state.value.copy(isLoading = false, listing = item)
+            }
+            println(
+                "Details ViewModel: Loaded item details for ID $itemID: ${_uiState.value.listing}"
+            )
+        }
     }
 
 }
