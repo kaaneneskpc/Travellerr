@@ -14,7 +14,9 @@ class PaymentRepositoryImpl(val remoteDataSource: RemoteDataSource) : PaymentRep
     ): Result<PaymentIntent> {
         val result = remoteDataSource.createPaymentIntent(
             PaymentIntentInfoRequest(
-                bookingId = bookingId
+                bookingId = bookingId,
+                amount = ((amount ?: 0.0) * 100).toLong(),
+                currency = currency
             )
         )
         if (result.isSuccess) {

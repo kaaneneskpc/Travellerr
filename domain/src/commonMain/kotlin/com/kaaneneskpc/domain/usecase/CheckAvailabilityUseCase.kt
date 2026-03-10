@@ -7,13 +7,10 @@ class CheckAvailabilityUseCase(private val repository: BookingRepository) {
     suspend fun execute(
         listingId: String,
         tripDateId: String,
+        checkInDate: String,
+        checkOutDate: String,
         noOfPeople: Int
-    ): BookingAvailability? {
-        val data = repository.checkAvailability(listingId, tripDateId, noOfPeople)
-        return if (data.isSuccess) {
-            data.getOrNull()
-        } else {
-            null
-        }
+    ): Result<BookingAvailability> {
+        return repository.checkAvailability(listingId, tripDateId, checkInDate, checkOutDate, noOfPeople)
     }
 }

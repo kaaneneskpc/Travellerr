@@ -4,8 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.first
 
 class CacheDataSource(private val dataStore: DataStore<Preferences>) {
 
@@ -14,14 +13,19 @@ class CacheDataSource(private val dataStore: DataStore<Preferences>) {
     }
 
     suspend fun saveAuthToken(token: String) {
+        println("DEBUG_TOKEN: Saving token=${token.take(30)}...")
         val key = stringPreferencesKey(KEY_AUTH_TOKEN)
         dataStore.edit { preferences ->
             preferences[key] = token
         }
+        println("DEBUG_TOKEN: Token saved successfully")
     }
 
-    fun getAuthTokenFlow(): Flow<String?> {
+    suspend fun getAuthToken(): String? {
         val key = stringPreferencesKey(KEY_AUTH_TOKEN)
-        return dataStore.data.map { preferences -> preferences[key] }
+        val preferences = dataStore.data.first()
+        val token = preferences[key]
+        println("DEBUG_TOKEN: Retrieved token=${token?.take(30) ?: "NULL"}...")
+        return token
     }
 }

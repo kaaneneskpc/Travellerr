@@ -6,6 +6,8 @@ import kotlinx.serialization.Serializable
 data class BookingInfoRequest(
     val listingId: String,
     val tripDateId: String? = null,
+    val checkInDate: String? = null,
+    val checkOutDate: String? = null,
     val numberOfGuests: Int = 1,
     val specialRequests: String? = null
 )

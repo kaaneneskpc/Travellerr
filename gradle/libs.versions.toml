@@ -24,7 +24,7 @@ koin-compose = "4.2.0-beta2"
 materialIconsExtended = "1.7.3"
 ktorClientOkhttp = "3.3.3"
 kotlinxSerializationJson = "1.9.0"
-
+stripeAndroid = "21.12.0"
 navigation = "1.0.0-alpha06"
 datastore = "1.2.0"
 
@@ -81,6 +81,7 @@ koin-compose-navigation3 = { module = "io.insert-koin:koin-compose-navigation3",
 #DataStore
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+stripe-android = { module = "com.stripe:stripe-android", version.ref = "stripeAndroid" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

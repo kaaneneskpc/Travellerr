@@ -12,6 +12,8 @@ class BookingRepositoryImpl(private val remoteDataSource: RemoteDataSource) : Bo
     override suspend fun checkAvailability(
         listingId: String,
         tripDateID: String,
+        checkInDate: String,
+        checkOutDate: String,
         numberOfGuests: Int
     ): Result<BookingAvailability> {
 
@@ -19,6 +21,8 @@ class BookingRepositoryImpl(private val remoteDataSource: RemoteDataSource) : Bo
             BookingInfoRequest(
                 listingId = listingId,
                 tripDateId = tripDateID,
+                checkInDate = checkInDate,
+                checkOutDate = checkOutDate,
                 numberOfGuests = numberOfGuests
             )
         )
@@ -40,6 +44,8 @@ class BookingRepositoryImpl(private val remoteDataSource: RemoteDataSource) : Bo
     override suspend fun createBooking(
         listingId: String,
         tripDateID: String,
+        checkInDate: String,
+        checkOutDate: String,
         numberOfGuests: Int,
         specialRequests: String?
     ): Result<Booking> {
@@ -48,6 +54,8 @@ class BookingRepositoryImpl(private val remoteDataSource: RemoteDataSource) : Bo
             BookingInfoRequest(
                 listingId = listingId,
                 tripDateId = tripDateID,
+                checkInDate = checkInDate,
+                checkOutDate = checkOutDate,
                 numberOfGuests = numberOfGuests,
                 specialRequests = specialRequests
             ))

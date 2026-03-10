@@ -1,28 +1,26 @@
 package com.kaaneneskpc.data.repository
 
+import com.kaaneneskpc.data.dataSource.CacheDataSource
 import com.kaaneneskpc.data.dataSource.RemoteDataSource
 import com.kaaneneskpc.data.mappers.RegisterRequestMapper
 import com.kaaneneskpc.data.mappers.UserMapper
 import com.kaaneneskpc.data.model.request.SignInRequest
 import com.kaaneneskpc.domain.model.RegisterModel
 import com.kaaneneskpc.domain.model.UserModel
-import com.kaaneneskpc.domain.repository.CacheRepository
 import com.kaaneneskpc.domain.repository.UserRepository
 
-class UserRepositoryImp(
-    private val dataSource: RemoteDataSource,
-    private val cacheRepository: CacheRepository
-) : UserRepository {
+class UserRepositoryImp(val dataSource: RemoteDataSource, private val cacheDataSource: CacheDataSource) : UserRepository {
     override suspend fun login(
         email: String,
         password: String
     ): Result<UserModel> {
+
         return try {
             val response = dataSource.signIn(SignInRequest(email, password))
             if (response.isSuccess) {
-                val signInResponse = response.getOrNull()!!
-                cacheRepository.saveAuthToken(signInResponse.token)
-                val userModel = UserMapper.toDomain(signInResponse.user)
+                val response = response.getOrNull()!!
+                val userModel = UserMapper.toDomain(response.user)
+                cacheDataSource.saveAuthToken(response.token)
                 Result.success(userModel)
             } else {
                 Result.failure(Exception("Login failed with status code: ${response.exceptionOrNull()}"))
@@ -36,13 +34,14 @@ class UserRepositoryImp(
         return try {
             val response = dataSource.register(RegisterRequestMapper.toDto(request))
             if (response.isSuccess) {
-                val signInResponse = response.getOrNull()!!
-                cacheRepository.saveAuthToken(signInResponse.token)
-                val userModel = UserMapper.toDomain(signInResponse.user)
+                val response = response.getOrNull()!!
+                val userModel = UserMapper.toDomain(response.user)
+                cacheDataSource.saveAuthToken(response.token)
                 Result.success(userModel)
             } else {
                 Result.failure(Exception("Registration failed with status code: ${response.exceptionOrNull()}"))
             }
+
         } catch (ex: Exception) {
             Result.failure(ex)
         }

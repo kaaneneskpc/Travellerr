@@ -33,6 +33,7 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.koin.android)
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.stripe.android)
         }
         commonMain.dependencies {
             implementation(project(":domain"))

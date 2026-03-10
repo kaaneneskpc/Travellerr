@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -38,6 +37,7 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import coil3.compose.AsyncImage
 import com.kaaneneskpc.presentation.feature.details.TravelListingDetailsViewModel
+import com.kaaneneskpc.travellerr.navigation.NavRoutes
 import com.kaaneneskpc.travellerr.widgets.TravellerCircleImageButton
 import com.kaaneneskpc.travellerr.widgets.TravellerrCircleVectorButton
 import com.kaaneneskpc.travellerr.widgets.TravellerrSpacer
@@ -219,7 +219,7 @@ fun TravelDetailScreen(
             }
             Button(
                 onClick = {
-                    //backStack.add(NavRoutes.Checkout(itemId))
+                    backStack.add(NavRoutes.Checkout(itemId))
                 },
                 modifier = Modifier.fillMaxWidth().padding(16.dp),
                 shape = RoundedCornerShape(12.dp)

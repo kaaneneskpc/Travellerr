@@ -65,41 +65,61 @@ class RemoteDataSource(private val httpClient: HttpClient, private val baseUrl: 
     }
     suspend fun checkBookingAvailability(request: BookingInfoRequest) : Result<BookingAvailabilityDto>{
         return try {
+            val token = cacheDataSource.getAuthToken()
+            println("DEBUG_BOOKING: ===== CHECK AVAILABILITY START =====")
+            println("DEBUG_BOOKING: Token is null? ${token == null}")
+            println("DEBUG_BOOKING: Token value='${token ?: "NULL"}'")
+            println("DEBUG_BOOKING: URL=${BASE_URL}/bookings/check-availability")
+            println("DEBUG_BOOKING: Request body=$request")
+            println("DEBUG_BOOKING: Auth header=Bearer $token")
             val response = httpClient.post(urlString = "${BASE_URL}/bookings/check-availability") {
                 setBody(request)
-                header(
-                    "Authorization", "Bearer ${cacheDataSource.getAuthTokenFlow()}"
-                )
+                header("Authorization", "Bearer $token")
             }
-            Result.success(response.body())
+            println("DEBUG_BOOKING: Response status=${response.status}")
+            val body: BookingAvailabilityDto = response.body()
+            println("DEBUG_BOOKING: Parsed body=$body")
+            println("DEBUG_BOOKING: ===== CHECK AVAILABILITY SUCCESS =====")
+            Result.success(body)
         } catch (ex: Exception) {
+            println("DEBUG_BOOKING: ===== CHECK AVAILABILITY FAILED =====")
+            println("DEBUG_BOOKING: Exception class=${ex::class.simpleName}")
+            println("DEBUG_BOOKING: Exception message=${ex.message}")
+            println("DEBUG_BOOKING: Full exception=$ex")
+            ex.printStackTrace()
             Result.failure(ex)
         }
     }
     suspend fun createBooking(request: BookingInfoRequest) : Result<BookingDto>{
         return try {
+            val token = cacheDataSource.getAuthToken()
+            println("DEBUG_CREATE_BOOKING: Token='${token ?: "NULL"}', Request=$request")
             val response = httpClient.post(urlString = "${BASE_URL}/bookings") {
                 setBody(request)
-                header(
-                    "Authorization", "Bearer ${cacheDataSource.getAuthTokenFlow()}"
-                )
+                header("Authorization", "Bearer $token")
             }
+            println("DEBUG_CREATE_BOOKING: Response status=${response.status}")
             Result.success(response.body())
         } catch (ex: Exception) {
+            println("DEBUG_CREATE_BOOKING: FAILED: ${ex::class.simpleName}: ${ex.message}")
+            ex.printStackTrace()
             Result.failure(ex)
         }
     }
 
     suspend fun createPaymentIntent(intentInfoRequest: PaymentIntentInfoRequest) : Result<PaymentIntentDto>{
         return try {
+            val token = cacheDataSource.getAuthToken()
+            println("DEBUG_PAYMENT: Token='${token ?: "NULL"}', Request=$intentInfoRequest")
             val response = httpClient.post(urlString = "${BASE_URL}/payments/intent") {
                 setBody(intentInfoRequest)
-                header(
-                    "Authorization", "Bearer ${cacheDataSource.getAuthTokenFlow()}"
-                )
+                header("Authorization", "Bearer $token")
             }
+            println("DEBUG_PAYMENT: Response status=${response.status}")
             Result.success(response.body())
         } catch (ex: Exception) {
+            println("DEBUG_PAYMENT: FAILED: ${ex::class.simpleName}: ${ex.message}")
+            ex.printStackTrace()
             Result.failure(ex)
         }
     }

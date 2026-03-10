@@ -16,12 +16,14 @@ import com.kaaneneskpc.domain.repository.PaymentRepository
 import com.kaaneneskpc.domain.repository.UserRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
+import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.logging.DEFAULT
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.request.header
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
@@ -45,6 +47,15 @@ val dataModule = module {
             install(DefaultRequest) {
                 header(HttpHeaders.ContentType, ContentType.Application.Json)
             }
+            HttpResponseValidator {
+                validateResponse { response ->
+                    val statusCode = response.status.value
+                    if (statusCode >= 400) {
+                        val body = response.bodyAsText()
+                        throw Exception("HTTP $statusCode: $body")
+                    }
+                }
+            }
         }
     }
 
@@ -59,8 +70,7 @@ val dataModule = module {
 
     single<UserRepository> {
         UserRepositoryImp(
-            dataSource = get<RemoteDataSource>(),
-            cacheRepository = get<CacheRepository>()
+            get<RemoteDataSource>(), get<CacheDataSource>()
         )
     }
     single<CacheRepository> {
