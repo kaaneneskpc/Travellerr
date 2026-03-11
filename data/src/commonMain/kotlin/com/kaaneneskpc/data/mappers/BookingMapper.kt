@@ -21,7 +21,9 @@ object BookingMapper {
             paymentStatus = tripDate.paymentStatus,
             specialRequests = tripDate.specialRequests,
             status = tripDate.status,
-            customerId = tripDate.customerId
+            customerId = tripDate.customerId,
+            listing = tripDate.listing?.let { ListingSummaryMapper.toDomain(it) },
+            tripDate = tripDate.tripDate?.let { TripDateSummaryMapper.toDomain(it) }
         )
     }
 

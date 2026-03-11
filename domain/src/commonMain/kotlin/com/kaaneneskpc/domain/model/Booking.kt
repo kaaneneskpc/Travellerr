@@ -15,5 +15,7 @@ data class Booking(
     val status: String,
     val totalPrice: Double,
     val tripDateId: String,
-    val updatedAt: String
+    val updatedAt: String,
+    val listing: ListingSummary?,
+    val tripDate: TripDateSummary?
 )

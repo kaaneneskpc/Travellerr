@@ -14,7 +14,7 @@ import platform.Foundation.NSUserDomainMask
 
 actual fun platformModule(): Module = module {
     single<StripePaymentHandler> { StripePaymentHandler() }
-    single<String> { "http://localhost:8080" }
+    single<String> { "https://unemissive-sanford-unabidingly.ngrok-free.dev" }
     single <DataStore<Preferences>>{
         createDataStore(producerPath = { "${getDocumentPath()}/${dataStoreFileName}" })
     }

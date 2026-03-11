@@ -21,4 +21,6 @@ interface BookingRepository {
         numberOfGuests: Int,
         specialRequests: String? = null
     ): Result<Booking>
+
+    suspend fun getBookings(): Result<List<Booking>>
 }

@@ -16,7 +16,7 @@ public class StripePaymentBridge {
     func presentPaymentSheet( clientSecret: String, completion: @escaping (String) -> Void) {
 
         var config = PaymentSheet.Configuration()
-        config.merchantDisplayName = "Trevnor"
+        config.merchantDisplayName = "Travellerr"
 
 
         let paymentSheet = PaymentSheet(

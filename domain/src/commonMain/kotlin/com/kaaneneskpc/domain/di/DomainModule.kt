@@ -8,6 +8,7 @@ import com.kaaneneskpc.domain.repository.UserRepository
 import com.kaaneneskpc.domain.usecase.CheckAvailabilityUseCase
 import com.kaaneneskpc.domain.usecase.CreateBookingUseCase
 import com.kaaneneskpc.domain.usecase.CreatePaymentIntentUseCase
+import com.kaaneneskpc.domain.usecase.GetAllBookingUseCase
 import com.kaaneneskpc.domain.usecase.GetAllListingUseCase
 import com.kaaneneskpc.domain.usecase.GetAuthTokenUseCase
 import com.kaaneneskpc.domain.usecase.GetListingByIdUseCase
@@ -39,5 +40,8 @@ val domainModule = module {
     }
     factory {
         CreatePaymentIntentUseCase(get<PaymentRepository>())
+    }
+    factory {
+        GetAllBookingUseCase(get<BookingRepository>())
     }
 }

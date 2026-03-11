@@ -20,10 +20,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -33,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,6 +50,7 @@ import com.kaaneneskpc.domain.model.BookingAvailability
 import com.kaaneneskpc.domain.model.TravelListing
 import com.kaaneneskpc.domain.model.TripDate
 import com.kaaneneskpc.presentation.feature.checkout.CheckoutViewModel
+import com.kaaneneskpc.travellerr.navigation.NavRoutes
 import com.kaaneneskpc.travellerr.payment.PaymentResult
 import com.kaaneneskpc.travellerr.payment.StripePaymentHandler
 import com.kaaneneskpc.travellerr.widgets.TravellerrCircleVectorButton
@@ -55,16 +59,16 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CheckoutScreen(
     backStack: NavBackStack<NavKey>,
     itemId: String,
-    viewModel:
-    CheckoutViewModel = koinViewModel { parametersOf(itemId) }
+    viewModel: CheckoutViewModel = koinViewModel { parametersOf(itemId) }
 ) {
 
     Scaffold {
-
+        val shouldShowErrorDialog = remember { mutableStateOf(false) }
         val paymentHandler = remember { StripePaymentHandler() }
         val uiState = viewModel.uiState.collectAsState()
         LaunchedEffect(uiState.value.paymentIntent) {
@@ -72,26 +76,39 @@ fun CheckoutScreen(
                 val resultStatus = paymentHandler.processPayment(it.clientSecret)
                 when (resultStatus) {
                     is PaymentResult.Success -> {
-                        // Handle successful payment, e.g., navigate to confirmation screen
+                        backStack.removeAll(
+                            listOf(
+                                NavRoutes.Checkout(itemId),
+                                NavRoutes.ListingDetails(itemId)
+                            )
+                        )
+                        backStack.add(NavRoutes.BookingList)
                     }
+
                     is PaymentResult.Failure -> {
-                        viewModel.resetPaymentState()
+                        shouldShowErrorDialog.value = true
                     }
+
                     is PaymentResult.Cancelled -> {
-                        viewModel.resetPaymentState()
+
                     }
                 }
             }
         }
-
-
-        val scrollState = rememberScrollState()
-        LaunchedEffect(uiState.value.bookingAvailability) {
-            if (uiState.value.bookingAvailability != null) {
-                scrollState.animateScrollTo(scrollState.maxValue)
-            }
+        if (shouldShowErrorDialog.value) {
+            AlertDialog(
+                onDismissRequest = { shouldShowErrorDialog.value = false },
+                title = { Text("Payment Failed") },
+                text = { Text("There was an issue processing your payment. Please try again.") },
+                confirmButton = {
+                    Button(onClick = { shouldShowErrorDialog.value = false }) {
+                        Text("OK")
+                    }
+                }
+            )
         }
-        Column(modifier = Modifier.fillMaxSize().verticalScroll(scrollState)) {
+
+        Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
             if (uiState.value.isLoading) {
                 Column(
                     modifier = Modifier.fillMaxSize(),

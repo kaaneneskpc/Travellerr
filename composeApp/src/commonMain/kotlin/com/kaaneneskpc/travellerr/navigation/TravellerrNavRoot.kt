@@ -8,6 +8,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
+import com.kaaneneskpc.travellerr.ui.bookings.BookingListScreen
 import com.kaaneneskpc.travellerr.ui.checkout.CheckoutScreen
 import com.kaaneneskpc.travellerr.ui.details.TravelDetailScreen
 import com.kaaneneskpc.travellerr.ui.listing.HomeListingScreen
@@ -28,6 +29,7 @@ fun TravellerrNavRoot(userToken: String?) {
                     subclass(NavRoutes.SignUp::class, NavRoutes.SignUp.serializer())
                     subclass(NavRoutes.Listing::class, NavRoutes.Listing.serializer())
                     subclass(NavRoutes.Checkout::class, NavRoutes.Checkout.serializer())
+                    subclass(NavRoutes.BookingList::class, NavRoutes.BookingList.serializer())
                 }
             }
         },
@@ -63,6 +65,9 @@ fun TravellerrNavRoot(userToken: String?) {
                     CheckoutScreen(backStack = backStack, itemId = key.id)
                 }
 
+                is NavRoutes.BookingList -> NavEntry(key) {
+                    BookingListScreen(backStack = backStack)
+                }
 
                 else -> error("Unknown NavRoute: $key")
             }
