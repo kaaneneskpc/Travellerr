@@ -4,5 +4,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface CacheRepository {
     suspend fun getAuthToken(): String?
-    //suspend fun saveAuthToken(token: String)
+    suspend fun clearAuthToken()
 }

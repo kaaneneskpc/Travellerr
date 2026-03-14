@@ -20,7 +20,9 @@ fun App(viewModel: AppViewModel = koinViewModel()) {
         }
         val uiSource = viewModel.state.collectAsState()
         if (!uiSource.value.isLoading) {
-            TravellerrNavRoot(uiSource.value.authToken)
+            key(uiSource.value.authToken) {
+                TravellerrNavRoot(uiSource.value.authToken)
+            }
         } else {
             CircularProgressIndicator()
         }

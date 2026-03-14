@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.kaaneneskpc.data.dataSource.CacheDataSource
 import com.kaaneneskpc.data.dataSource.RemoteDataSource
+import com.kaaneneskpc.domain.session.SessionManager
 import com.kaaneneskpc.data.repository.BookingRepositoryImpl
 import com.kaaneneskpc.data.repository.CacheRepositoryImpl
 import com.kaaneneskpc.data.repository.ListingRepositoryImpl
@@ -50,7 +51,13 @@ val dataModule = module {
             HttpResponseValidator {
                 validateResponse { response ->
                     val statusCode = response.status.value
-                    if (statusCode >= 400) {
+                    if (statusCode == 401) {
+                        val cacheDataSource = get<CacheDataSource>()
+                        cacheDataSource.clearAuthToken()
+                        SessionManager.emitSessionExpired()
+                        val body = response.bodyAsText()
+                        throw Exception("HTTP $statusCode: $body")
+                    } else if (statusCode >= 400) {
                         val body = response.bodyAsText()
                         throw Exception("HTTP $statusCode: $body")
                     }

@@ -42,6 +42,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.koin.compose.viewmodel.koinViewModel
 import travellerr.composeapp.generated.resources.Res
 import travellerr.composeapp.generated.resources.dummy
+import travellerr.composeapp.generated.resources.bookmark
 import travellerr.composeapp.generated.resources.notifications
 import travellerr.composeapp.generated.resources.user
 import androidx.navigation3.runtime.NavBackStack
@@ -65,7 +66,16 @@ fun HomeListingScreen(backStack: NavBackStack<NavKey>, viewModel: TravelListingV
                     Text("Kaan", modifier = Modifier.padding(horizontal = 8.dp))
                 }
                 Spacer(Modifier.weight(1f))
-
+                Image(
+                    painter = painterResource(Res.drawable.bookmark),
+                    contentDescription = "Bookings",
+                    modifier = Modifier.size(48.dp)
+                        .clip(CircleShape)
+                        .background(color = Color.LightGray.copy(alpha = 0.2f))
+                        .clickable { backStack.add(NavRoutes.BookingList) }
+                        .padding(12.dp),
+                )
+                Spacer(Modifier.width(8.dp))
                 Image(
                     painter = painterResource(Res.drawable.notifications),
                     contentDescription = null,

@@ -7,4 +7,7 @@ class CacheRepositoryImpl(private val cacheDataSource: CacheDataSource) : CacheR
     override suspend fun getAuthToken(): String? {
         return cacheDataSource.getAuthToken()
     }
+    override suspend fun clearAuthToken() {
+        cacheDataSource.clearAuthToken()
+    }
 }

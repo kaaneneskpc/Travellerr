@@ -30,9 +30,6 @@ class TravelListingDetailsViewModel(
             } else {
                 _uiState.value = state.value.copy(isLoading = false, listing = item)
             }
-            println(
-                "Details ViewModel: Loaded item details for ID $itemID: ${_uiState.value.listing}"
-            )
         }
     }
 

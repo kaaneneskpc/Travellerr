@@ -13,19 +13,23 @@ class CacheDataSource(private val dataStore: DataStore<Preferences>) {
     }
 
     suspend fun saveAuthToken(token: String) {
-        println("DEBUG_TOKEN: Saving token=${token.take(30)}...")
         val key = stringPreferencesKey(KEY_AUTH_TOKEN)
         dataStore.edit { preferences ->
             preferences[key] = token
         }
-        println("DEBUG_TOKEN: Token saved successfully")
     }
 
     suspend fun getAuthToken(): String? {
         val key = stringPreferencesKey(KEY_AUTH_TOKEN)
         val preferences = dataStore.data.first()
         val token = preferences[key]
-        println("DEBUG_TOKEN: Retrieved token=${token?.take(30) ?: "NULL"}...")
         return token
+    }
+
+    suspend fun clearAuthToken() {
+        val key = stringPreferencesKey(KEY_AUTH_TOKEN)
+        dataStore.edit { preferences ->
+            preferences.remove(key)
+        }
     }
 }

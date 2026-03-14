@@ -26,18 +26,18 @@ class BookingListViewModel(
     fun getAllBookings() {
         viewModelScope.launch {
             _uiState.value = uiState.value.copy(isLoading = true)
-            val bookings = bookingUseCase.execute()
-            if (bookings == null) {
-                _uiState.value = uiState.value.copy(
-                    isLoading = false,
-                    errorMessage = "Failed to load bookings"
-                )
-            } else {
+            val result = bookingUseCase.execute()
+            result.onSuccess { bookings ->
                 _uiState.value = uiState.value.copy(
                     isLoading = false,
                     bookings = bookings
                 )
                 fetchListingDetails(bookings.map { it.listingId }.distinct())
+            }.onFailure { exception ->
+                _uiState.value = uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = "Failed to load bookings: ${exception::class.simpleName} - ${exception.message}"
+                )
             }
         }
     }
