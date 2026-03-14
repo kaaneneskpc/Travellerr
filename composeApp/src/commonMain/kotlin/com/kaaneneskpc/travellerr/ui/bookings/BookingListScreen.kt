@@ -114,6 +114,10 @@ fun BookingListScreen(
     val pagerState = androidx.compose.foundation.pager.rememberPagerState(pageCount = { tabs.size })
     val coroutineScope = rememberCoroutineScope()
 
+    LaunchedEffect(Unit) {
+        viewModel.getAllBookings()
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         AnimatedAbstractBackground()
 

@@ -55,7 +55,7 @@ fun BookingDetailScreen(
                 confirmButton = {
                     TextButton(onClick = {
                         viewModel.resetDeleteResult()
-                        backStack.add(NavRoutes.Listing)
+                        backStack.add(NavRoutes.BookingList)
                     }) {
                         Text("OK", color = Color(0xFF00897B))
                     }

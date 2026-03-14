@@ -85,7 +85,9 @@ fun TravelDetailScreen(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back Arrow",
                             modifier = Modifier,
-                            onClick = {}
+                            onClick = {
+                                backStack.add(NavRoutes.Listing)
+                            }
                         )
                         Text(
                             "Details",
