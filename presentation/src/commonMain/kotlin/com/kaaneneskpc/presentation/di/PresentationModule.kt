@@ -23,5 +23,5 @@ val presentationModule = module {
     viewModel { (itemID: String) -> CheckoutViewModel(itemID, get(), get(), get(), get()) }
     viewModel { AppViewModel(get<GetAuthTokenUseCase>()) }
     viewModel { BookingListViewModel(get(), get()) }
-    viewModel { com.kaaneneskpc.presentation.feature.bookings.details.BookingDetailViewModel(get(), get()) }
+    viewModel { com.kaaneneskpc.presentation.feature.bookings.details.BookingDetailViewModel(get(), get(), get(), get()) }
 }

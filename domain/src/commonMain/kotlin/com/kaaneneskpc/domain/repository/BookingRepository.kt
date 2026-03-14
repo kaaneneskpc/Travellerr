@@ -24,4 +24,6 @@ interface BookingRepository {
 
     suspend fun getBookings(): Result<List<Booking>>
     suspend fun getBookingById(id: String): Result<Booking>
+    suspend fun updateBookingStatus(id: String, status: String): Result<Booking>
+    suspend fun deleteBooking(id: String): Result<Unit>
 }

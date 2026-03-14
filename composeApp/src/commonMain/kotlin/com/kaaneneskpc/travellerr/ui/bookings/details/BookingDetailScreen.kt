@@ -21,7 +21,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import coil3.compose.AsyncImage
@@ -30,8 +29,6 @@ import com.kaaneneskpc.domain.model.TravelListing
 import com.kaaneneskpc.presentation.feature.bookings.details.BookingDetailViewModel
 import com.kaaneneskpc.travellerr.navigation.NavRoutes
 import com.kaaneneskpc.travellerr.ui.bookings.AnimatedAbstractBackground
-import com.kaaneneskpc.travellerr.ui.bookings.GlowingStatusDot
-import com.kaaneneskpc.travellerr.ui.bookings.SlantedShape
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -47,7 +44,35 @@ fun BookingDetailScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        AnimatedAbstractBackground() // Reuse the fresh mint background
+        AnimatedAbstractBackground()
+
+        val deleteResult = uiState.deleteResult
+        if (deleteResult is com.kaaneneskpc.presentation.feature.bookings.details.DeleteResult.Success) {
+            AlertDialog(
+                onDismissRequest = {},
+                title = { Text("Success", fontWeight = FontWeight.Bold) },
+                text = { Text("Booking has been successfully cancelled.") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        viewModel.resetDeleteResult()
+                        backStack.add(NavRoutes.Listing)
+                    }) {
+                        Text("OK", color = Color(0xFF00897B))
+                    }
+                }
+            )
+        } else if (deleteResult is com.kaaneneskpc.presentation.feature.bookings.details.DeleteResult.Failure) {
+            AlertDialog(
+                onDismissRequest = { viewModel.resetDeleteResult() },
+                title = { Text("Error", fontWeight = FontWeight.Bold, color = Color(0xFFE53935)) },
+                text = { Text(deleteResult.message) },
+                confirmButton = {
+                    TextButton(onClick = { viewModel.resetDeleteResult() }) {
+                        Text("OK", color = Color(0xFFE53935))
+                    }
+                }
+            )
+        }
 
         if (uiState.isLoading) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -82,6 +107,37 @@ fun BookingDetailScreen(
                 // Content Information in Glassmorphism wrappers
                 Column(modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 40.dp)) {
                     DetailGlassInfoBox(booking, listing)
+
+                    if (booking.status != "COMPLETED" && booking.status != "CANCELLED") {
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            if (booking.status == "PENDING") {
+                                GlassActionButton(
+                                    modifier = Modifier.weight(1f),
+                                    text = "Confirm Booking",
+                                    colorHint = Color(0xFF00BFA5),
+                                    onClick = { viewModel.updateBookingStatus(booking.id, "CONFIRMED") }
+                                )
+                            }
+                            if (booking.status == "CONFIRMED") {
+                                GlassActionButton(
+                                    modifier = Modifier.weight(1f),
+                                    text = "Complete Trip",
+                                    colorHint = Color(0xFF00897B),
+                                    onClick = { viewModel.updateBookingStatus(booking.id, "COMPLETED") }
+                                )
+                            }
+                            GlassActionButton(
+                                modifier = Modifier.weight(1f),
+                                text = "Cancel",
+                                colorHint = Color(0xFFE53935),
+                                onClick = { viewModel.deleteBooking(booking.id) }
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -261,5 +317,38 @@ fun DetailGlassInfoBox(booking: Booking, listing: TravelListing?) {
                 )
             }
         }
+    }
+}
+
+@Composable
+fun GlassActionButton(
+    modifier: Modifier = Modifier,
+    text: String,
+    colorHint: Color,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color(0xBBFFFFFF))
+            .clickable { onClick() }
+            .border(
+                BorderStroke(
+                    1.dp, Brush.linearGradient(
+                        colors = listOf(colorHint.copy(alpha = 0.5f), colorHint.copy(alpha = 0.1f))
+                    )
+                ),
+                RoundedCornerShape(16.dp)
+            )
+            .padding(vertical = 16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.titleSmall.copy(
+                fontWeight = FontWeight.Bold,
+                color = colorHint
+            )
+        )
     }
 }

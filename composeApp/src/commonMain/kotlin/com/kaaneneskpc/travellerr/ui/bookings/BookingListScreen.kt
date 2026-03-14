@@ -33,6 +33,7 @@ import com.kaaneneskpc.domain.model.Booking
 import com.kaaneneskpc.domain.model.TravelListing
 import com.kaaneneskpc.presentation.feature.bookings.BookingListViewModel
 import com.kaaneneskpc.travellerr.navigation.NavRoutes
+import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 
 val SlantedShape = GenericShape { size, _ ->
@@ -109,6 +110,9 @@ fun BookingListScreen(
     viewModel: BookingListViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val tabs = listOf("PENDING", "CONFIRMED", "COMPLETED", "CANCELLED")
+    val pagerState = androidx.compose.foundation.pager.rememberPagerState(pageCount = { tabs.size })
+    val coroutineScope = rememberCoroutineScope()
 
     Box(modifier = Modifier.fillMaxSize()) {
         AnimatedAbstractBackground()
@@ -121,8 +125,20 @@ fun BookingListScreen(
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF1B3A36)
                 ),
-                modifier = Modifier.padding(bottom = 24.dp)
+                modifier = Modifier.padding(bottom = 16.dp)
             )
+
+            GlassTabBar(
+                tabs = tabs,
+                selectedIndex = pagerState.currentPage,
+                onTabSelected = { index ->
+                    coroutineScope.launch {
+                        pagerState.animateScrollToPage(index)
+                    }
+                }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             if (uiState.isLoading) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -135,27 +151,115 @@ fun BookingListScreen(
                         color = Color(0xFFD32F2F)
                     )
                 }
-            } else if (uiState.bookings.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(text = "No journeys mapped yet.", color = Color(0xFF5D7A74))
-                }
             } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    contentPadding = PaddingValues(bottom = 32.dp)
-                ) {
-                    items(uiState.bookings, key = { it.id }) { booking ->
-                        val listing = uiState.listingsMap[booking.listingId]
-                        GlassBookingListItem(
-                            booking = booking,
-                            listing = listing,
-                            onClick = { backStack.add(NavRoutes.BookingDetail(booking.id)) }
-                        )
+                androidx.compose.foundation.pager.HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.fillMaxSize()
+                ) { pageIndex ->
+                    val selectedTab = tabs[pageIndex]
+                    val filteredBookings = uiState.bookings
+                        .filter { it.status == selectedTab }
+                        .sortedByDescending { it.checkInDate ?: "" }
+
+                    if (filteredBookings.isEmpty()) {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text(
+                                text = "No ${selectedTab.lowercase()} bookings.",
+                                color = Color(0xFF5D7A74)
+                            )
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                            contentPadding = PaddingValues(bottom = 32.dp)
+                        ) {
+                            items(filteredBookings, key = { it.id }) { booking ->
+                                val listing = uiState.listingsMap[booking.listingId]
+                                GlassBookingListItem(
+                                    booking = booking,
+                                    listing = listing,
+                                    onClick = { backStack.add(NavRoutes.BookingDetail(booking.id)) }
+                                )
+                            }
+                        }
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+fun GlassTabBar(
+    tabs: List<String>,
+    selectedIndex: Int,
+    onTabSelected: (Int) -> Unit
+) {
+    val tabLabels = mapOf(
+        "PENDING" to "Pending",
+        "CONFIRMED" to "Confirmed",
+        "COMPLETED" to "Completed",
+        "CANCELLED" to "Cancelled"
+    )
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(Color(0x99FFFFFF))
+            .border(
+                BorderStroke(1.dp, Brush.linearGradient(
+                    colors = listOf(Color(0x44B2DFDB), Color(0x22B2DFDB))
+                )),
+                RoundedCornerShape(20.dp)
+            )
+            .padding(4.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        tabs.forEachIndexed { index, tab ->
+            val isSelected = index == selectedIndex
+            val tabColor = resolveStatusColor(tab)
+
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(if (isSelected) Color(0xCCFFFFFF) else Color.Transparent)
+                    .clickable { onTabSelected(index) }
+                    .padding(vertical = 10.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Canvas(modifier = Modifier.size(8.dp)) {
+                        drawCircle(
+                            color = if (isSelected) tabColor else tabColor.copy(alpha = 0.3f),
+                            radius = size.minDimension / 2
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = tabLabels[tab] ?: tab,
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Normal,
+                            color = if (isSelected) Color(0xFF1B3A36) else Color(0xFF5D7A74),
+                            letterSpacing = 0.5.sp
+                        ),
+                        maxLines = 1
+                    )
+                }
+            }
+        }
+    }
+}
+
+fun resolveStatusColor(status: String): Color {
+    return when (status) {
+        "CONFIRMED" -> Color(0xFF00BFA5)
+        "PENDING" -> Color(0xFFFFB800)
+        "COMPLETED" -> Color(0xFF2196F3)
+        "CANCELLED" -> Color(0xFFE53935)
+        else -> Color.Gray
     }
 }
 

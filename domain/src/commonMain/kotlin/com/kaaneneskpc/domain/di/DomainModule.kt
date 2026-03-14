@@ -47,4 +47,10 @@ val domainModule = module {
     factory {
         com.kaaneneskpc.domain.usecase.GetBookingByIdUseCase(get<BookingRepository>())
     }
+    factory {
+        com.kaaneneskpc.domain.usecase.UpdateBookingStatusUseCase(get<BookingRepository>())
+    }
+    factory {
+        com.kaaneneskpc.domain.usecase.DeleteBookingUseCase(get<BookingRepository>())
+    }
 }

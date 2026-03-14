@@ -13,9 +13,11 @@ import com.kaaneneskpc.data.model.response.ListingResponse
 import com.kaaneneskpc.data.model.response.SignInResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 
 class RemoteDataSource(private val httpClient: HttpClient, private val baseUrl: String, private val cacheDataSource: CacheDataSource) {
@@ -124,6 +126,32 @@ class RemoteDataSource(private val httpClient: HttpClient, private val baseUrl: 
             }
             val body: BookingDto = response.body()
             Result.success(body)
+        } catch (ex: Exception) {
+            Result.failure(ex)
+        }
+    }
+
+    suspend fun updateBookingStatus(id: String, request: com.kaaneneskpc.data.model.request.UpdateBookingStatusRequest): Result<BookingDto> {
+        return try {
+            val token = cacheDataSource.getAuthToken()
+            val response = httpClient.put(urlString = "${BASE_URL}/bookings/$id/status") {
+                setBody(request)
+                header("Authorization", "Bearer $token")
+            }
+            val body: BookingDto = response.body()
+            Result.success(body)
+        } catch (ex: Exception) {
+            Result.failure(ex)
+        }
+    }
+
+    suspend fun deleteBooking(id: String): Result<Unit> {
+        return try {
+            val token = cacheDataSource.getAuthToken()
+            httpClient.delete(urlString = "${BASE_URL}/bookings/$id") {
+                header("Authorization", "Bearer $token")
+            }
+            Result.success(Unit)
         } catch (ex: Exception) {
             Result.failure(ex)
         }

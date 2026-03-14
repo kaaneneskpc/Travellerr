@@ -93,4 +93,19 @@ class BookingRepositoryImpl(private val remoteDataSource: RemoteDataSource) : Bo
             return Result.failure(result.exceptionOrNull()!!)
         }
     }
+
+    override suspend fun updateBookingStatus(id: String, status: String): Result<Booking> {
+        val request = com.kaaneneskpc.data.model.request.UpdateBookingStatusRequest(status = status)
+        val result = remoteDataSource.updateBookingStatus(id, request)
+        if (result.isSuccess) {
+            val response = result.getOrNull()!!
+            return Result.success(BookingMapper.toDomain(response))
+        } else {
+            return Result.failure(result.exceptionOrNull()!!)
+        }
+    }
+
+    override suspend fun deleteBooking(id: String): Result<Unit> {
+        return remoteDataSource.deleteBooking(id)
+    }
 }
