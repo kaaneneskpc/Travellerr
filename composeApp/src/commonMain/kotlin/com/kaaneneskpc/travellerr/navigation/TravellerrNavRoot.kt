@@ -11,6 +11,7 @@ import androidx.savedstate.serialization.SavedStateConfiguration
 import com.kaaneneskpc.travellerr.ui.bookings.BookingListScreen
 import com.kaaneneskpc.travellerr.ui.checkout.CheckoutScreen
 import com.kaaneneskpc.travellerr.ui.details.TravelDetailScreen
+import com.kaaneneskpc.travellerr.ui.bookings.details.BookingDetailScreen
 import com.kaaneneskpc.travellerr.ui.listing.HomeListingScreen
 import com.kaaneneskpc.travellerr.ui.signIn.LoginScreen
 import com.kaaneneskpc.travellerr.ui.signUp.SignUpScreen
@@ -30,6 +31,7 @@ fun TravellerrNavRoot(userToken: String?) {
                     subclass(NavRoutes.Listing::class, NavRoutes.Listing.serializer())
                     subclass(NavRoutes.Checkout::class, NavRoutes.Checkout.serializer())
                     subclass(NavRoutes.BookingList::class, NavRoutes.BookingList.serializer())
+                    subclass(NavRoutes.BookingDetail::class, NavRoutes.BookingDetail.serializer())
                 }
             }
         },
@@ -67,6 +69,10 @@ fun TravellerrNavRoot(userToken: String?) {
 
                 is NavRoutes.BookingList -> NavEntry(key) {
                     BookingListScreen(backStack = backStack)
+                }
+
+                is NavRoutes.BookingDetail -> NavEntry(key) {
+                    BookingDetailScreen(backStack = backStack, bookingId = key.id)
                 }
 
                 else -> error("Unknown NavRoute: $key")

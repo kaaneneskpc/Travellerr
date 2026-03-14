@@ -23,4 +23,7 @@ sealed interface NavRoutes : NavKey {
 
     @Serializable
     data object BookingList: NavRoutes, NavKey
+
+    @Serializable
+    data class BookingDetail(val id: String) : NavRoutes, NavKey
 }

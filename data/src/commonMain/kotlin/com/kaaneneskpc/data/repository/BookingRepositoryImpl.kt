@@ -81,4 +81,16 @@ class BookingRepositoryImpl(private val remoteDataSource: RemoteDataSource) : Bo
             return Result.failure(result.exceptionOrNull()!!)
         }
     }
+
+    override suspend fun getBookingById(id: String): Result<Booking> {
+        val result = remoteDataSource.getBookingById(id)
+        if (result.isSuccess) {
+            val response = result.getOrNull()!!
+            return Result.success(
+                BookingMapper.toDomain(response)
+            )
+        } else {
+            return Result.failure(result.exceptionOrNull()!!)
+        }
+    }
 }

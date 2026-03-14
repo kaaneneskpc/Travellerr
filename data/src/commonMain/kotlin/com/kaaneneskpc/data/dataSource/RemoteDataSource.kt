@@ -115,4 +115,17 @@ class RemoteDataSource(private val httpClient: HttpClient, private val baseUrl: 
             Result.failure(ex)
         }
     }
+
+    suspend fun getBookingById(id: String): Result<BookingDto> {
+        return try {
+            val token = cacheDataSource.getAuthToken()
+            val response = httpClient.get(urlString = "${BASE_URL}/bookings/$id") {
+                header("Authorization", "Bearer $token")
+            }
+            val body: BookingDto = response.body()
+            Result.success(body)
+        } catch (ex: Exception) {
+            Result.failure(ex)
+        }
+    }
 }

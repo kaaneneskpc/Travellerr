@@ -44,4 +44,7 @@ val domainModule = module {
     factory {
         GetAllBookingUseCase(get<BookingRepository>())
     }
+    factory {
+        com.kaaneneskpc.domain.usecase.GetBookingByIdUseCase(get<BookingRepository>())
+    }
 }

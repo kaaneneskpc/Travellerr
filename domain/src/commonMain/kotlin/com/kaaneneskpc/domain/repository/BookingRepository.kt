@@ -23,4 +23,5 @@ interface BookingRepository {
     ): Result<Booking>
 
     suspend fun getBookings(): Result<List<Booking>>
+    suspend fun getBookingById(id: String): Result<Booking>
 }
