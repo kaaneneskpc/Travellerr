@@ -177,6 +177,65 @@ Travellerr is a modern, modular, and scalable multiplatform application targetin
 - **Layouts:** Build responsive and engaging interfaces via Jetpack Compose standard layout components (`Box`, `Row`, `Column`) and `ConstraintLayout`.
 - **Loading Experience:** Utilize shimmer effects strictly with `CachedAsyncImage` to deliver a continuous, high-performance UI experience during rendering.
 
+### 8.2. Glassmorphism Design System
+The application implements a cohesive glassmorphism design language across all screens:
+
+- **Glass Background Pattern:**
+  - Animated Canvas backgrounds with radial gradients
+  - Pulse and wave animations using `rememberInfiniteTransition`
+  - Soft color palette: `SoftCream (#F5F0E8)`, `TealPrimary (#00897B)`, `TealLight (#4DB6AC)`, `TealDark (#1B3A36)`
+
+- **Glass Components:**
+  - Semi-transparent backgrounds (`Color(0xBBFFFFFF)` or `Color(0xCCFFFFFF)`)
+  - Subtle gradient borders using `Brush.linearGradient`
+  - Rounded corners with `RoundedCornerShape`
+  - `GlassIconButton`, `GlassSearchBar`, `GlassCategoryChip`, `GlassTabBar`, `GlassLoadingIndicator`, `GlassErrorCard`
+
+- **Card Designs:**
+  - `FeaturedDestinationCard`: Large cards (280x360dp) with full-bleed images, gradient overlay, glass rating badge, favorite button, and price display
+  - `PopularDestinationCard`: Compact cards (180x220dp) with glass background and inner image container
+  - `GlassBookingListItem`: Slanted image shape with glassmorphism info panel
+  - Custom shapes using `GenericShape` (e.g., `SlantedShape`, `CardSlantedShape`)
+
+- **Animated Elements:**
+  - `GlowingStatusDot`: Pulsing status indicators with glow effect
+  - `HomeAnimatedBackground` / `AnimatedAbstractBackground`: Dynamic gradient animations
+  - Wave text decoration using Canvas drawing
+
+### 8.3. Screen-Specific Patterns
+
+#### HomeListingScreen
+- **Header:** Glass profile chip with gradient avatar, notification badges
+- **Welcome Section:** Large typography with animated wave underline on "World!"
+- **Search Bar:** Glass container with gradient filter button
+- **Categories:** Horizontal scrollable glass chips with selection states (Beach, Mountain, City, Forest, Desert)
+- **Featured Destinations:** LazyRow with large immersive cards
+- **Popular Now:** LazyRow with compact glass cards
+
+#### BookingListScreen
+- **Tab Navigation:** `HorizontalPager` with `GlassTabBar` for status filtering (PENDING, CONFIRMED, COMPLETED, CANCELLED)
+- **State Refresh:** `LaunchedEffect(Unit)` triggers `getAllBookings()` on every composition to ensure fresh data after status updates
+- **List Items:** Glass cards with slanted image shapes, status dots, and price display
+
+#### BookingDetailScreen
+- **Header:** Full-bleed slanted image with glass back button overlay
+- **Info Box:** Glass container with status, payment info, dates, guests, and total price
+- **Action Buttons:** Glass buttons with colored gradient borders (Confirm, Complete, Cancel)
+
+---
+
+## 9. State Management Patterns
+
+### 9.1. Screen Refresh on Navigation
+- Screens that display lists (e.g., `BookingListScreen`) use `LaunchedEffect(Unit)` to refresh data when the screen enters composition
+- This ensures data consistency after mutations performed on detail screens
+- Example: After updating booking status in `BookingDetailScreen`, navigating back triggers a fresh fetch in `BookingListScreen`
+
+### 9.2. ViewModel State Pattern
+- `MutableStateFlow` for UI state management
+- `collectAsState()` in Composables for reactive updates
+- Separate `UiState` data classes encapsulating loading, error, and data states
+
 ---
 
 This document incorporates all system guidelines and architectural structures to ensure that **Travellerr** strictly follows a scalable, modular, and testable framework utilizing KMP and specific cross-platform best practices.
