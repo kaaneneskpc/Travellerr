@@ -1,7 +1,5 @@
 package com.kaaneneskpc.data.di
 
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import com.kaaneneskpc.data.dataSource.CacheDataSource
 import com.kaaneneskpc.data.dataSource.RemoteDataSource
 import com.kaaneneskpc.domain.session.SessionManager
@@ -67,7 +65,6 @@ val dataModule = module {
     }
 
     single { RemoteDataSource(httpClient = get<HttpClient>(), get(), get()) }
-    single { CacheDataSource(dataStore = get<DataStore<Preferences>>()) }
 
     single<ListingRepository> {
         ListingRepositoryImpl(

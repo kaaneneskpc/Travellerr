@@ -10,7 +10,8 @@ val stripeModule = module {
     single { StripePaymentHandler() }
 }
 val appModule = listOf(
-    platformModule(), presentationModule, domainModule, dataModule, stripeModule
+    platformModule(), presentationModule, domainModule, dataModule, stripeModule, cacheModule()
 )
 
+expect fun cacheModule(): org.koin.core.module.Module
 expect fun platformModule(): org.koin.core.module.Module

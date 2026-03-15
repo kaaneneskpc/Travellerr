@@ -9,3 +9,16 @@ plugins {
     alias(libs.plugins.androidKotlinMultiplatformLibrary) apply false
     alias(libs.plugins.androidLint) apply false
 }
+
+val kotlinVersion = libs.versions.kotlin.get()
+
+subprojects {
+    configurations.all {
+        resolutionStrategy.eachDependency {
+            if (requested.group == "org.jetbrains.kotlin" && requested.name.startsWith("kotlin-stdlib")) {
+                useVersion(kotlinVersion)
+            }
+            because("Ensures all kotlin-stdlib dependencies use the same version")
+        }
+    }
+}

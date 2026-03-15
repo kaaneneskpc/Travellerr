@@ -1,4 +1,6 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -10,6 +12,20 @@ plugins {
 }
 
 kotlin {
+    @OptIn(ExperimentalKotlinGradlePluginApi::class)
+    applyHierarchyTemplate {
+        common {
+            group("nonWasmJs") {
+                withAndroidTarget()
+                group("ios"){
+                    withIosArm64()
+                    withIosSimulatorArm64()
+                }
+            }
+
+            withWasmJs()
+        }
+    }
     androidTarget {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)
@@ -24,6 +40,17 @@ kotlin {
             baseName = "ComposeApp"
             isStatic = true
         }
+    }
+
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        outputModuleName = "composeApp"
+        browser {
+            commonWebpackConfig {
+                outputFileName = "composeApp.js"
+            }
+        }
+        binaries.executable()
     }
     
     sourceSets {
@@ -58,8 +85,16 @@ kotlin {
             implementation(libs.jetbrains.lifecycle.viewmodel.nav3)
             implementation(libs.jetbrains.lifecycle.viewmodel)
             implementation(libs.kotlinx.serialization.json)
-            implementation(libs.androidx.datastore)
-            implementation(libs.androidx.datastore.preferences)
+        }
+        val nonWasmJsMain by getting {
+            dependencies {
+                implementation(libs.androidx.datastore)
+                implementation(libs.androidx.datastore.preferences)
+
+            }
+        }
+        wasmJsMain.dependencies {
+            implementation(libs.ktor.client.js)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)

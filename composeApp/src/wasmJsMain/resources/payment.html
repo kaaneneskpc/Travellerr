@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compose for Web</title>
+    <script src = "https://js.stripe.com/v3/"></script>
+    <style>
+        body { font-family: sans-serif; padding: 24px; max-width: 440px; margin: 0 auto; background: #fff; }
+        h2 { font-size: 18px; margin: 0 0 20px; color: #1a1a2e; }
+        #card-wrap { border: 1px solid #d1d5db; border-radius: 6px; padding: 11px 12px; }
+        #error { color: #df1b41; font-size: 13px; min-height: 18px; margin: 10px 0; }
+        .btn-row { display: flex; gap: 10px; margin-top: 16px; }
+        #pay-btn { flex: 1; background: #1967D2; color: #fff; border: none; border-radius: 8px;
+                   padding: 13px; font-size: 15px; font-weight: 600; cursor: pointer; }
+        #pay-btn:disabled { opacity: 0.6; cursor: default; }
+        #cancel-btn { background: #f1f3f4; color: #333; border: none; border-radius: 8px;
+                      padding: 13px 18px; font-size: 15px; font-weight: 600; cursor: pointer; }
+    </style>
+</head>
+<body>
+<h2>Complete your purchase</h2>
+<div id="card-wrap"></div>
+<div id="error"></div>
+<div class="btn-row">
+    <button id="pay-btn">Pay Now</button>
+    <button id="cancel-btn">Cancel</button>
+</div>
+
+<script>
+
+    let strip, cardElement, clientSecret;
+
+
+    function reply(msg){
+        window.opener && window.opener.postMessage(msg, location.origin);
+        window.close();
+    }
+
+    window.addEventListener( 'message', function(e) {
+
+        if (e.origin !== location.origin) return;
+        if(!e.data ||  e.data.type !== 'stripe_init') return;
+            const data = e.data;
+            strip = Stripe(data.publishableKey);
+            clientSecret = data.clientSecret;
+            const elements = strip.elements();
+            cardElement = elements.create('card', {
+                style: {
+                    base: {
+                        fontSize: '16px',
+                        color: '#1a1a2e',
+                        '::placeholder': { color: '#d1d5db' },
+                    },
+                    invalid: { color: '#df1b41' },
+                },
+            });
+            cardElement.mount('#card-wrap');
+    });
+
+    document.getElementById('cancel-btn').addEventListener('click', function() {
+        reply({ type: 'payment_cancelled' });
+    });
+
+    document.getElementById('pay-btn').addEventListener('click', async function() {
+        const payBtn = this;
+        payBtn.disabled = true;
+        const errorD = document.getElementById('error');
+        errorD.textContent = '';
+        payBtn.textContent = 'Processing...';
+
+        const { error, paymentIntent } = await strip.confirmCardPayment(clientSecret, {
+            payment_method: { card: cardElement },
+        });
+        if(error){
+         payBtn.disabled = false;
+         errorD.textContent = error.message || 'Payment failed';
+         payBtn.textContent = 'Pay Now';
+
+        } else if(paymentIntent && paymentIntent.status === 'succeeded') {
+            reply({ type: 'stripe_success', paymentIntentId: paymentIntent.id });
+        } else {
+            payBtn.disabled = false;
+            errorD.textContent = 'Payment failed';
+            payBtn.textContent = 'Pay Now';
+        }
+
+    });
+
+ window.opener && window.opener.postMessage({ type: 'stripe_ready' }, location.origin);
+</script>
+
+</body>
+</html>
