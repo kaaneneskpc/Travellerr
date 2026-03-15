@@ -2,14 +2,14 @@
 
 ## 1. Project Purpose and Overview
 
-Travellerr is a modern, modular, and scalable multiplatform application targeting Android and iOS, developed with Kotlin Multiplatform (KMP) and Jetpack Compose Multiplatform. The project enforces clean architecture, advanced gamification features, iOS Live Activities, code splitting, and strict coding standards. It aims to provide a seamless, high-performance user experience with custom animations, optimized media handling, and MVI state management.
+Travellerr is a modern, modular, and scalable multiplatform application targeting Android, iOS, and Web (WASM), developed with Kotlin Multiplatform (KMP) and Jetpack Compose Multiplatform. The project enforces clean architecture, advanced gamification features, iOS Live Activities, code splitting, and strict coding standards. It aims to provide a seamless, high-performance user experience with custom animations, optimized media handling, and MVI state management.
 
 ---
 
 ## 2. Technologies Used
 
 ### Core Technologies
-- **Kotlin Multiplatform (KMP):** Shared business logic, domain models, and data layer across Android and iOS targets.
+- **Kotlin Multiplatform (KMP):** Shared business logic, domain models, and data layer across Android, iOS, and Web (WASM) targets.
 - **Jetpack Compose Multiplatform:** Modern, declarative UI framework used for all rendering.
 - **Koin:** Dependency Injection (Core, Compose, ViewModel, Android).
 - **Ktor:** Multiplatform HTTP client for network operations (Content Negotiation, Logging, OkHttp/Darwin).
@@ -221,6 +221,16 @@ The application implements a cohesive glassmorphism design language across all s
 - **Header:** Full-bleed slanted image with glass back button overlay
 - **Info Box:** Glass container with status, payment info, dates, guests, and total price
 - **Action Buttons:** Glass buttons with colored gradient borders (Confirm, Complete, Cancel)
+
+#### TravelDetailScreen
+- **Header:** Full-bleed immersive top image with dark gradient bottom overlay and glass back/bookmark buttons
+- **Info Sections:** Separated `GlassContainer` blocks for Listing Info, Description, and Photo Gallery
+- **Action Button:** `GlassBookNowButton` with a Teal/Mint gradient
+
+#### CheckoutScreen
+- **Header:** Glass checkout header mapping to the destination
+- **Flow:** Glass-styled trip date selector, guest count selector, and payment breakdown
+- **Action Button:** `GlassPaymentButton` triggering Stripe integration
 
 ---
 

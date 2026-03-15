@@ -2,6 +2,7 @@
 
 ![Android](https://img.shields.io/badge/Android-✅-green)
 ![iOS](https://img.shields.io/badge/iOS-✅-blue)
+![Web(WASM)](https://img.shields.io/badge/Web(WASM)-✅-lightblue)
 ![Kotlin](https://img.shields.io/badge/Kotlin-Multiplatform-orange)
 ![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-%F0%9F%9A%80-orange)
 ![Koin](https://img.shields.io/badge/Koin-DI-yellow)
@@ -11,14 +12,14 @@
 
 ## 🚀 About the Project
 
-**Travellerr** is a modern, modular, and scalable travel booking application targeting both Android and iOS platforms. Built with Kotlin Multiplatform (KMP) and Jetpack Compose Multiplatform, it allows users to explore travel destinations, book trips, manage bookings, and process payments seamlessly. Features include **glassmorphism UI design**, **Stripe payment integration**, **iOS Live Activities** for real-time order tracking, and advanced **gamification features**.
+**Travellerr** is a modern, modular, and scalable travel booking application targeting Android, iOS, and Web (WASM) platforms. Built with Kotlin Multiplatform (KMP) and Jetpack Compose Multiplatform, it allows users to explore travel destinations, book trips, manage bookings, and process payments seamlessly. Features include **glassmorphism UI design**, **Stripe payment integration**, **iOS Live Activities** for real-time order tracking, and advanced **gamification features**.
 
 ---
 
 ## 📦 Features
 
 ### ✈️ Customer Features
-- 🔥 **Kotlin Multiplatform**: Single codebase for Android & iOS
+- 🔥 **Kotlin Multiplatform**: Single codebase for Android, iOS, & Web (WASM)
 - 🎨 **Glassmorphism UI**: Modern, animated interface with Canvas-based backgrounds
 - 🗺️ **Travel Listings**: Browse beautiful destinations with detailed information
 - 📅 **Trip Date Selection**: Choose from available trip dates with capacity tracking
@@ -188,8 +189,10 @@ Travellerr implements a cohesive glassmorphism design language:
 
 ## 🎉 Recent Updates
 
-### 🎨 Glassmorphism UI Redesign (Latest)
+### 🎨 Soft Mint Glassmorphism UI (Latest)
 - **HomeListingScreen**: Complete redesign with animated Canvas background
+- **TravelDetailScreen**: Glassmorphic property details, gallery, and layout updates
+- **CheckoutScreen**: Soft Mint styling with integrated Glassmorphism containers
 - **Featured Destination Cards**: Large immersive cards (280x360dp) with gradient overlays
 - **Popular Destination Cards**: Compact glass cards (180x220dp)
 - **Category Chips**: Selectable filters with color states
@@ -241,6 +244,12 @@ cd Travellerr
 1. Open `iosApp/iosApp.xcodeproj` in Xcode
 2. Select target device/simulator
 3. Build and run
+
+### Run for Web (WASM)
+
+```sh
+./gradlew :composeApp:wasmJsBrowserRun
+```
 
 ---
 
